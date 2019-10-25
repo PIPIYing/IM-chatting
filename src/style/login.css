@@ -1,0 +1,96 @@
+.login-box1{ /*垂直居中*/
+    background-color:rgba(0,0,0,0.1);
+    width: 380px;
+    height: 320px;
+    margin: -160px 0 0 -190px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.login-box2{
+    width: 320px;
+    height: 200px;
+    margin: -100px 0 0 -160px;
+    position: absolute;
+    top: 65%;
+    left: 50%;
+}
+
+#logo{
+    font: 700 80px "Comic Sans MS";
+    letter-spacing: 25px;
+    color: white;
+    text-shadow: 0 0 10px #fdec84, /*空心字*/
+    10px -10px 30px #ffae35; /*金色阴影*/
+}
+
+#loginForm{
+    position: relative;
+    top: 8%;
+   /* background-color: #555555;*/
+}
+
+#logName,
+#logPwd,
+#login{ /*输入框的样式调整*/
+    height: 30px;
+    width: 240px;
+    border-radius: 25px;
+    border: rgba(255,255,255,0.3) 1px solid;
+    margin-bottom: 18px;
+    background-color: rgba(255,255,255,0);
+    color: white;
+}
+#logName,
+#logPwd{ /*文本缩进*/
+    text-indent: 30px;
+}
+
+#login{ /*登录框*/
+    background-color: rgba(255,255,255,0.15);
+    height: 40px;
+    color: white;
+    font-size: 15px;
+}
+
+/*文本框的字体颜色修改，浏览器兼容*/
+#logName::-webkit-input-placeholder,
+#logPwd::-webkit-input-placeholder{ /* WebKit browsers */
+    color: rgba(255,255,255,0.5);
+}
+#logName:-moz-placeholder,
+#logPwd:-moz-placeholder{ /* Mozilla Firefox 4 to 18 */
+    color: rgba(255,255,255,0.5);
+}
+#logName::-moz-placeholder,
+#logPwd::-moz-placeholder{ /* Mozilla Firefox 19+ */
+    color: rgba(255,255,255,0.5);
+}
+#logName:-ms-input-placeholder,
+#logPwd:-ms-input-placeholder{ /* Internet Explorer 10+ */
+    color: rgba(255,255,255,0.5);
+}
+
+p{
+    /*background-color: #0000FF;*/
+    position: relative;
+    top: -15px;
+}
+.remark{
+    text-decoration: none;
+    font-size: 11px;
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+    color: white;
+}
+
+.router-link-active{
+  text-decoration: none;
+}
+
+

@@ -1,0 +1,97 @@
+#quote{
+  font: 700 23px "Comic Sans MS";
+  letter-spacing: 2px;
+  color: white;
+  text-shadow: 0 0 10px #fdec84, /*空心字*/
+  10px -10px 30px #ffae35; /*金色阴影*/
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+}
+
+#container{ /*垂直居中*/
+  background-color:rgba(255,255,255,0.3);
+  width: 860px;
+  height: 500px;
+  margin: -250px 0 0 -430px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+/*导航栏*/
+nav{
+  background-color: #777;
+  width: 100px;
+  height: 500px;
+}
+ul{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+li{
+  display: block;
+  /*    background-color: #FF0000;*/
+  padding: 3px;
+}
+
+#self{
+  width: 90px;
+  height: 90px;
+  border: white 1px solid;
+  border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  /*  background-color: #FF0000;*/
+  position: relative;
+  left:  1px;
+}
+.icon{
+  width: 40px;
+  height: 40px;
+  margin-top: 30px;
+}
+
+#sidebar{
+  background-color: #EEE;
+  width: 260px;
+  height: 500px;
+  position: relative;
+  top: -100%;
+  left: 100px;
+  display: flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: -webkit-flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -ms-overflow-y: auto;
+}
+
+/*
+#sidebar li{
+    background-color: #FF6600;
+    padding: 15px 0 15px 0;
+}
+
+#sidebar li:first-child{
+    background-color: #4078c0;
+    padding: 8px 0 8px 0;
+}
+*/
+
+/*#icon01{
+    width: 25px;
+    height: 25px;
+    position: relative;
+    left: 190px;
+    top: 10px;
+}
+#icon02{
+    width: 38px;
+    height: 38px;
+    position: relative;
+    left: 220px;
+    top: -20px;
+}*/
