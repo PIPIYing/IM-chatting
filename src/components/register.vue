@@ -44,15 +44,21 @@
           <br/>
         </div>
         <div id="registerBox4">
-          <div id="photo">
+          <el-upload
+            class="avatar-uploader"
+            action="http://47.97.214.92:8080/CloudServer/photo"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img v-if="photo" :src="photo" class="avatar" alt="用户头像">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+          <div class="el-upload__text">点击上传头像文件</div>
           </div>
-
-          <div id="fileBtn">
-            <input type="file" id="file" name="image" accept="image/*">  <!--@change="fileImgChange"  v-model.lazy="fileImg"-->
-            <button>提交</button>
-          </div>
-        </div>
         <div id="registerBox5">
+          <label for="address">请输入地区</label>   <!--bug-->
+          <br/>
+          <input type="text" id="address" @change="addressChange" v-model.lazy="address">
           <label for="email">请输入邮箱</label>
           <br/>
           <input type="email" id="email" @change="emailChange" v-model.lazy="email">
@@ -61,11 +67,11 @@
           <label for="des">请输入您的个性签名</label>
           <br/>
           <!--<input type="text" id="Signature" required>-->
-          <textarea id="des" v-model.lazy="des">
+          <textarea id="des" v-model.lazy="des" @keyup.enter="postInfo">
           </textarea>
           <br/>
           <span style="color: red"> *为必填字段</span>
-          <input type="button" id="registerBtn" value="立即注册" formtarget="_blank" @click="postInfo">
+          <el-button type="primary" plain id="registerBtn"  @click="postInfo">立即注册</el-button>
         </div>
       </div>
     </div>
@@ -73,14 +79,12 @@
 </template>
 
 <script>
-  import axios from 'axios'
-  import qs from 'qs'
+  import Register from '../api/httpRegister'
 
-      export default {
+  export default {
           name: "register",
           data() {
               return {
-                  User : {},
                   nickname: '',
                   username: '',
                   sex: '',
@@ -88,39 +92,48 @@
                   rePassword: '',
                   phone: '',
                   age: '',
-                  /*fileImg: "../../static/images/photo.png",
-                  errorStr: ''*/
+                  photo: '',
                   email: '',
-                  des: ''}
-          },
-          created() {
-              /*            this.postInfo()*/
+                  des: '',
+                  address: ''
+              }
           },
           methods: {
               isValid(str) {
                   return /^\w+$/.test(str)
               },
-              /*            isNum(str){
-                return /^\d+$/.test(str)   //测试字符串中是否全为数字
-            },*/
-
               nicknameChange(){
                   var nickname = this.nickname
-                  if(nickname.length < 6 || nickname.length > 18){
-                      alert("昵称长度必须在6-18位");
+                  if(nickname.length < 6 || nickname.length > 18) {
+                      this.$message({
+                          message: '昵称长度必须在6-18位',
+                          type: 'warning'
+                      })
                   }
               },
               usernameChange() {
                   var username = this.username
                   /*                console.log('调用change')*/
                   if (username === '')
-                      alert("用户名不得为空");
+                      this.$message({
+                          message: '用户名不得为空',
+                          type: 'error'
+                      })
                   else if (username.length < 6 || username.length > 18) {
-                      alert("用户名长度必须在6-18位");
+                      this.$message({
+                          message: '用户名长度必须在6-18位',
+                          type: 'warning'
+                      })
                   } else if (!this.isValid(username)) {  //排除特殊字符和空格
-                      alert("用户名必须由数字、字母和下划线组成");
+                      this.$message({
+                          message: '用户名必须由数字、字母和下划线组成',
+                          type: 'warning'
+                      })
                   } else if (!isNaN(username)) {  //判断username是不是一个值
-                      alert("用户名不能为纯数字");
+                      this.$message({
+                          message: '用户名不能为纯数字',
+                          type: 'warning'
+                      })
                   }
                   /*else if(username.indexOf(" ") !== -1){
                     alert("用户名中不能含有空格");}*/
@@ -134,14 +147,28 @@
               pwdChange() {
                /*   var pwdValue = document.getElementById("pwd").value;  //取pwd的值*/
                   var password = this.password
-                  if (password.length < 6 || password.length > 16)
-                      alert("密码长度必须在6-16位");
                   if (password === '')
-                    alert("密码不得为空");
+                      this.$message({
+                          message: '密码不得为空',
+                          type: 'error'
+                      })
+                  else if (password.length < 6 || password.length > 16)
+                      this.$message({
+                      message: '密码长度必须在6-16位',
+                      type: 'warning'
+                  })
                   else if (!this.isValid(password)) {  //排除特殊字符和空格
-                      alert("密码必须由数字、字母和下划线组成");}
+                      this.$message({
+                          message: '密码必须由数字、字母和下划线组成',
+                          type: 'warning'
+                      })
+                  }
                   else if (!isNaN(password)) {  //判断Pwd是不是一个值
-                       alert("密码不能为纯数字");}
+                          this.$message({
+                              message: '密码不能为纯数字',
+                              type: 'warning'
+                          })
+                      }
               },
               rePwdChange() {
                   /*var rePwd = this.rePwd*/
@@ -149,106 +176,97 @@
                   if (document.getElementById("pwd").value !== rePwdValue.value)
                       alert("两次输入的密码不一致，请重新输入"); */ //document.getElementById("").value
                   var rePassword = this.rePassword
-                  if (rePassword!== this.rePassword)
-                      alert("两次输入的密码不一致，请重新输入");
+                  if (rePassword !== this.password)
+                      this.$message({
+                          message: '两次输入的密码不一致，请重新输入',
+                          type: 'error'
+                      })
               },
               telChange(){
                   var phone = this.phone
                   if(!/^1[3|4|5|7|8|9][0-9]\d{8}$/.test(phone))
-                      alert("输入的手机号不是完整的11位手机号或者正确的手机号");
+                      this.$message({
+                          message: '输入的手机号不是完整的11位手机号或者正确的手机号',
+                          type: 'error'
+                      })
               },
               ageChange(){
                   var age = this.age
                   if(!/^\+?[1-9][0-9]*$/.test(age))
-                      alert("输入的年龄有误")
+                      this.$message({
+                          message: '输入的年龄有误',
+                          type: 'warning'
+                      })
               },
+              handleAvatarSuccess(res, file) {
+                  this.photo = URL.createObjectURL(file.raw);
+                  //创建一个 DOMString，其中包含一个表示参数中给出的对象的URL。
+                  // 这个 URL 的生命周期和创建它的窗口中的 document 绑定。这个新的URL 对象表示指定的 File 对象或 Blob 对象。
+              },
+              beforeAvatarUpload(file){
+                  const isJPG = file.type === 'image/jpeg' || 'image/png';
+                  const isLt2M = file.size / 1024 / 1024 < 2;
 
-         /*     fileImgChange(p){
-                var file = p.target.files[0]
-                  console.log(file)
-                  //获取图片大小，做大小限制有用
-                  let imgSize = file.size
-                  console.log(imgSize)
-                  var _this = this  //this指向问题，所以在外面先定义
-                  //比如上传头像限制1M大小，这里获取的大小单位是b
-                  if(imgSize <= 10*1024){
-                      //合格
-                      _this.errorStr=''
-                      console.log("大小合适")
-                      //开始渲染选择的图片
-                      //本地路径方法
-                      this.fileImg = window.URL.createObjectURL(p.target.files[0])
-                      console.log(window.URL.createObjectURL(p.target.files[0]))
+                  if (!isJPG) {
+                      this.$message.error('上传头像图片只能是 JPG 或 PNG 格式!');
                   }
-              }*/
-
+                  if (!isLt2M) {
+                      this.$message.error('上传头像图片大小不能超过 2MB!');
+                  }
+                  return isJPG && isLt2M;
+              },
+              addressChange(){
+                  if(!/^[\u4e00-\u9fa5]$/.test(this.address))
+                      this.$message({
+                          message: '请输入中文字符！',
+                          type: 'warning'
+                      })
+              }, //bug!!!!!
               emailChange(){
                   var email = this.email
                   if(!/^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}$/.test(email)){
-                      alert("邮箱格式有误，请重新输入")
+                      this.$message({
+                          message: '邮箱格式有误，请重新输入',
+                          type: 'error'
+                      })
                   }
               },
-              postInfo(){
-                 /* axios.get(
-                      '/selectUserInfo',
-                      {
-                          params:{
-                          "nickname": "this.nickname",
-                          "username": "this.username",
-                          "sex": "this.sexChange()",
-                          "pwd": "this.pwd",
-                          "rePwd": "this.rePwd",
-                          "tel": "this.tel",
-                          "age": "this.age",
-                          /!*fileImg: "../../static/images/photo.png",
-                          errorStr: ''*!/
-                          "email":" this.email",
-                          "des": "this.des"
-                          }
-                      }).then(response => {
-                          console.log(response)
+              postInfo() {
+                  var User = {
+                      nickname: this.nickname,
+                      username: this.username,
+                      sex: this.sex,
+                      password: this.password,
+                      phone: this.phone,
+                      age: this.age,
+                      photo: this.photo,
+                      email: this.email,
+                      des: this.des,
+                      address: this.address
+                  }
+                  if (this.username === '' || this.password === '' || this.rePassword === '') {
+                      this.$message({
+                          message: '请先填写好必填信息再注册',
+                          type: 'error'
                       })
-                      .catch(error =>{
-                          console.log(error)
-                      }
-                  )*/
-                 if(this.username === '' || this.password === '' || this.rePassword === '')
-                     alert("请先填写好必填信息再注册")
-                 axios.post(
-                      '/submit',
-                     JSON.stringify
-                     ({
-                         User : {
-                             /*nickname: this.nickname,*/
-                             username: this.username,
-                            /* sex: this.sex,*/
-                             password: this.password
-                            /* phone: this.phone,
-                             age: this.age,*/
-                             /*fileImg: "../../static/images/photo.png",
-                             errorStr: ''*/
-                             /*email: this.email,
-                             des: this.des*/}
-                     })
-                    /* {
-                         headers: {
-                             'Content-Type': 'application/json;charset=UTF-8'}}*/
-                    )
-                      .then(response => {
-                          /*console.log(response)*/
-                          if(response.data.status === 200){
-                              alert(response.data)
-                          }else{
-                              alert(response.data.status)}
-                      })
-                      .catch(error =>{
-                          /*console.log(error)*/
-                          let res = error.response
+                  } else {
+                      Register.post('/user/submit', User)
+                          .then(response => {
+                              console.log(response)
+                          })
+                          .catch(error => {
+                                  console.log(error)
+                                  /*let res = error.response
                           if(error){
                               alert('Error, HTTP CODE：' + res.status)
-                          }
-                      }
-                  )
+                          }*/
+                                  this.$message({
+                                      message: 'ERROR!',
+                                      type: 'error'
+                                  })
+                              }
+                          )
+                  }
               }
           }
       }

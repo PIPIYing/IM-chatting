@@ -3,7 +3,7 @@
     <div id="backgroundImage1">
       <div id="backgroundImage2">
         <router-view></router-view>
-        <Footer></Footer>
+        <footnote></footnote>
       </div>
     </div>
   </div>
@@ -12,16 +12,18 @@
 <script>
 import register from "./components/register";
 import login from "./components/login";
-import content from "./components/content";
-import Footer from "./components/footer";
+import container from "./components/container";
+import footnote from "./components/footnote";
+import repair from "./components/repair";
 
 export default {
   name: 'app',
   components: {
       register,
-      content,
+      container,
       login,
-      Footer
+      footnote,
+      repair
   }
 }
 </script>
@@ -30,6 +32,7 @@ export default {
   html,body{
     height: 100%;
     text-align: center;
+    overflow: hidden;
     /*    color: white;*/
   }
   #backgroundImage1{

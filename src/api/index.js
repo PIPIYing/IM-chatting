@@ -1,5 +1,5 @@
 //配置API接口地址
-var root = "http://47.97.214.92:8080/CloudServer/user"
+var root = "http://47.97.214.92:8080/CloudServer"
 
 //引用axios
 import axios from 'axios'

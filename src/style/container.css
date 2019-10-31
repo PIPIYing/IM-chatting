@@ -1,0 +1,116 @@
+#quote{
+  font: 700 23px "Comic Sans MS";
+  letter-spacing: 2px;
+  color: white;
+  text-shadow: 0 0 10px #fdec84, /*空心字*/
+  10px -10px 30px #ffae35; /*金色阴影*/
+  position: fixed;
+  right: 30px;
+  bottom: 25px;
+}
+
+#container{ /*垂直居中*/
+  background-color:rgba(255,255,255,0.3);
+  width: 860px;
+  height: 470px;
+  margin: -235px 0 0 -430px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+#sidebar{
+  background-color: #999;
+  height: 470px;
+}
+#list {
+  background-color: #D3DCE6;
+  height: 470px;
+}
+.el-main {
+  background-color: #E9EEF3;
+  height: 470px;
+}
+
+#block{ /*总高度470px*/
+  padding: 15px;
+}
+
+.el-avatar{
+  cursor: pointer;
+}
+
+.el-menu{
+  border-right: none;
+  margin-top: 2px;
+}
+.el-menu:hover,
+.el-menu:visited{
+  background-color: #111;
+}
+.el-menu-item{
+  height: 64px;
+  padding: 2px 20px 0 10px;
+}
+.el-icon-chat-dot-round,
+.el-icon-user,
+.el-icon-user-solid,
+.el-icon-connection,
+.el-icon-setting,
+.el-icon-switch-button{
+  color: white;
+  font-size: 28px;
+}
+
+#userBoxLeft{
+  width: 40%;
+  height: 70%;
+  float: left;
+  text-align: left;
+}
+#userBoxLeft .el-input{
+   margin: 7px 0 7px 0;
+ }
+#sexChoose{
+  margin: 7px 0 0 0;
+}
+#userBoxRight{
+  width: 50%;
+  height: 70%;
+  float: right;
+  text-align: left;
+}
+#userBoxRight .el-avatar,
+#userBoxRight img{
+  position: relative;
+  left: 80px;
+}
+.footerBtn{
+  margin-top: 25px;
+}
+#otherIcon{
+  height: 36px;
+  background-color: rgba(128,128,128,0.4);
+}
+.el-icon-circle-plus-outline,
+.el-icon-bell{  /*36px高*/
+  font-size: 26px;
+  color: dimgray;
+  float: right;
+  padding: 5px 12px 5px 0;
+  cursor: pointer;
+}
+.addFriendBox{
+  text-align: left;
+}
+
+/*.el-col {
+  margin-bottom: 20px;
+}
+.el-row {
+  border-radius: 4px;
+}*/
+
+/*.bg-purple {
+  background: #d3dce6;
+}*/

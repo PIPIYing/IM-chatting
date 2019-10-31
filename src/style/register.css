@@ -45,39 +45,49 @@
 }
 
 #registerBox4{
-  width: 360px;
-  height: 280px;
   position: relative;
-  top: -85%;
-  left: 40%;
+  top: -100%;
+  left: 55%;
   text-align: left;
-  font-size: 14px ;
-  /* background-color: #5cb85c;*/
 }
 
-#photo{
-  width: 142px;
-  height: 142px;
-  border-radius: 50%;
-  background: url("../../static/images/photo.png") no-repeat;
+.avatar-uploader{
+  width: 130px;
+  height: 130px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
   position: relative;
-  top: -50px;
-  left: 100px;
+  left: 2%;
 }
-#fileBtn{
-  background-color: rgba(255,255,255,0);
-  border: rgba(255,255,255,0.3) 1px solid;
-  width: 300px;
+.avatar-uploader:hover{
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 40px;
+  color: #8c939d;
+  width: 130px;
+  height: 130px;
+  line-height: 130px;
+  text-align: center;
+}
+.avatar {
+  width: 130px;
+  height: 130px;
+  display: block;
+}
+.el-upload__text{
+  color: #818181;
   position: relative;
-  top: -35px;
-  left: 40px;
+  left: 3%;
 }
 
 #registerBox5{
   width: 250px;
   height: 100px;
   position: relative;
-  top: -125%;
+  top: -98%;
   left: 46%;
   text-align: left;
   font-size: 14px ;
@@ -91,6 +101,7 @@
 #rePwd,
 #Phone,
 #age,
+#address,
 #email,
 #des{ /*输入框的样式调整*/
   height: 20px;
@@ -100,20 +111,21 @@
   background-color: rgba(255,255,255,0);
   margin-top: 2px;
 }
+#address,
 #email{
   width: 300px;
 }
 #des{
-  height: 70px;
+  height: 60px;
   width: 297px;
 }
 
 #registerBtn{ /*注册框*/
-  background-color: rgba(255,255,255,0.5);
-  height: 40px;
+/*  background-color: rgba(255,255,255,0.5);*/
+  height: 38px;
   width: 110px;
-  border-radius: 20px;
-  border: none;
+/*  border-radius: 20px;
+  border: none;*/
   font-size: 15px;
   position: relative;
   left: 115px;
@@ -133,3 +145,4 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
