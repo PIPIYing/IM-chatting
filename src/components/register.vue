@@ -45,14 +45,17 @@
         </div>
         <div id="registerBox4">
           <el-upload
-            class="avatar-uploader"
-            action="http://47.97.214.92:8080/CloudServer/photo"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
-            <img v-if="photo" :src="photo" class="avatar" alt="用户头像">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
+          class="avatar-uploader"
+          action="http://47.97.214.92:8080/CloudServer/"
+          :show-file-list="false"
+          :before-upload="beforeAvatarUpload"
+          :on-success="handleAvatarSuccess"
+          :multiple="true"
+          name="file"
+          ref="file"> <!--name="123"-->
+          <img v-if="showPhoto" :src="showPhoto" class="avatar" alt="用户头像">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
           <div class="el-upload__text">点击上传头像文件</div>
           </div>
         <div id="registerBox5">
@@ -79,8 +82,6 @@
 </template>
 
 <script>
-  import Register from '../api/httpRegister'
-
   export default {
           name: "register",
           data() {
@@ -91,7 +92,9 @@
                   password: '',
                   rePassword: '',
                   phone: '',
+                  photoFile: '',
                   age: '',
+                  showPhoto: '',
                   photo: '',
                   email: '',
                   des: '',
@@ -198,23 +201,30 @@
                           type: 'warning'
                       })
               },
-              handleAvatarSuccess(res, file) {
-                  this.photo = URL.createObjectURL(file.raw);
-                  //创建一个 DOMString，其中包含一个表示参数中给出的对象的URL。
-                  // 这个 URL 的生命周期和创建它的窗口中的 document 绑定。这个新的URL 对象表示指定的 File 对象或 Blob 对象。
-              },
               beforeAvatarUpload(file){
-                  const isJPG = file.type === 'image/jpeg' || 'image/png';
+                  //对上传的图片文件进行判断
+                  const isJPG = file.type === 'image/jpeg' || 'image/png' || 'image/gif';
                   const isLt2M = file.size / 1024 / 1024 < 2;
-
                   if (!isJPG) {
-                      this.$message.error('上传头像图片只能是 JPG 或 PNG 格式!');
+                      this.$message.error('上传头像图片只能是 JPG 或 PNG 或 GIF 格式!');
                   }
                   if (!isLt2M) {
                       this.$message.error('上传头像图片大小不能超过 2MB!');
                   }
-                  return isJPG && isLt2M;
-              },
+                  /*//上传前把参数丢给后台
+                  this.photo = file.name*/
+                  //创建表单对象
+                  var form = new FormData();
+                  //后端接受参数
+                  form.append("photoFile",file)
+                  form.append("photo",file.name)
+
+              },  //上传前的判断
+              handleAvatarSuccess(res,file) {
+                this.showPhoto = URL.createObjectURL(file.raw);
+                  //创建一个 DOMString，其中包含一个表示参数中给出的对象的URL。
+                  // 这个 URL 的生命周期和创建它的窗口中的 document 绑定。这个新的URL 对象表示指定的 File 对象或 Blob 对象。
+              },  //创建前端展示照片的url
               addressChange(){
                   if(!/^[\u4e00-\u9fa5]$/.test(this.address))
                       this.$message({
@@ -232,7 +242,7 @@
                   }
               },
               postInfo() {
-                  var User = {
+                  var userInfo = {
                       nickname: this.nickname,
                       username: this.username,
                       sex: this.sex,
@@ -240,32 +250,25 @@
                       phone: this.phone,
                       age: this.age,
                       photo: this.photo,
+                      photoFile: this.form,
                       email: this.email,
                       des: this.des,
                       address: this.address
-                  }
+                  } //上传图片只能是用form表单的形式代替data进行上传
                   if (this.username === '' || this.password === '' || this.rePassword === '') {
-                      this.$message({
-                          message: '请先填写好必填信息再注册',
-                          type: 'error'
-                      })
+                      this.$message.error('请先填写好必填信息再注册')
                   } else {
-                      Register.post('/user/submit', User)
+                      this.axios.post('/user/submit', userInfo)
                           .then(response => {
                               console.log(response)
+                              if(response.data.status === 200){
+                                  this.$message.success('注册成功!')
+                              }
                           })
                           .catch(error => {
                                   console.log(error)
-                                  /*let res = error.response
-                          if(error){
-                              alert('Error, HTTP CODE：' + res.status)
-                          }*/
-                                  this.$message({
-                                      message: 'ERROR!',
-                                      type: 'error'
-                                  })
-                              }
-                          )
+                                  this.$message.error('注册失败!')
+                              })
                   }
               }
           }

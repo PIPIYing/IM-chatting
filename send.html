@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>聊天工具</title>
+</head>
+<body>
+	<div>
+		你好：<label id="username"></label>
+	</div>
+	<br>
+	<br>
+	<br> 请输入：
+	<textarea rows="5" cols="10" id="inputMsg"></textarea>
+	<button id="doSendUser" onclick="doSendUser();">发送</button>
+	<textarea rows="20" cols="40" id="singleMsg"></textarea>
+	<br>
+	<br>
+	<br>
+	<button id="send" onclick="doSendUsers();">群发</button>
+	<textarea rows="20" cols="40" id="groupMsg"></textarea>
+	<br>
+	<button id="clean">清空聊天记录</button>
+	<button onclick="closeWebSocket();">关闭连接</button>
+
+
+</body>
+
+
+<script type="text/javascript"
+	src="http://cdn.bootcss.com/jquery/3.1.0/jquery.min.js"></script>
+<script type="text/javascript"
+	src="http://cdn.bootcss.com/sockjs-client/1.1.1/sockjs.js"></script>
+<script type="text/javascript">
+	var username = null;
+	// 	加载页面时触发的函数
+	window.onload = function() {
+
+		// 		从页面本地存储取出键为id的值
+		username = window.localStorage.getItem('username');
+		$("#username").text(username);
+	}
+
+	// 	用条件语句匹配服务器的ip地址并建立连接
+	var websocket = null;
+	if ('WebSocket' in window) {
+		websocket = new WebSocket("ws://172.20.10.2:8080/CloudServer/ws");
+		console.log("=============WebSocket");
+
+	} else if ('MozWebSocket' in window) {
+		websocket = new MozWebSocket("ws://172.20.10.2:8080/CloudServer/ws");
+		console.log("=============MozWebSocket");
+
+	} else {
+		websocket = new SockJS("http://172.20.10.2:8080/CloudServer/ws/sockjs");
+		console.log("=============SockJS");
+	}
+
+	// 	连接成功触发onopen函数
+	websocket.onopen = function(event) {
+		//alert("连接成功！");
+		console.log("连接成功");
+		//document.getElementById("send").disabled = false; //连接成功时启用群发按钮
+	};
+
+	// 	从服务端返回的消息
+	websocket.onmessage = function(event) { //evt根据请求不同返回不同消息
+		//console.log('Client received a message', event);
+		var data = $.parseJSON(event.data);
+		console.log("WebSocket:收到一条消息：", data);
+		
+		$("#inputMsg").val(""); 
+			if (data.toName != null) {
+				$("#singleMsg").append("\n").append(data); //单发窗口
+			} else {
+				$("#groupMsg").append("\n").append(data); //2,群发时返回的消息
+			}
+		// 		//判断是否是欢迎消息（没用户编号的就是欢迎消息）
+		// 		if(data.from==undefined||data.from==null||data.from==""){
+		// 			//===系统消息
+		// 			$("#contentUl").append("<li><b>"+data.date+"</b><em>系统消息：</em><span>"+data.text+"</span></li>");
+		// 			//刷新在线用户列表
+		// 			$("#chatOnline").html("在线用户("+data.userList.length+")人");
+		// 			$("#chatUserList").empty();
+		// 			$(data.userList).each(function(){
+		// 				$("#chatUserList").append("<li>"+this.nickname+"</li>");
+		// 			});
+
+		// 		}else{
+		// 			//===普通消息
+		// 			//处理一下个人信息的显示：
+		// 			if(data.fromName==fromName){
+		// 				data.fromName="我";
+		// 				$("#contentUl").append("<li><span  style='display:block; float:right;'><em>"+data.fromName+"</em><span>"+data.text+"</span><b>"+data.date+"</b></span></li><br/>");
+		// 			}else{
+		// 				$("#contentUl").append("<li><b>"+data.date+"</b><em>"+data.fromName+"</em><span>"+data.text+"</span></li><br/>");
+		// 			}
+
+		// 		}
+
+		
+		// 		}
+	}
+
+	// 	异常处理
+	websocket.onerror = function(event) {
+		//alert("连接异常，已断开！");
+		console.log("连接异常，已断开");
+		console.log("WebSocket:发生错误：", event);
+		//document.getElementById("send").disabled = true; //断开连接禁用按钮
+	};
+
+	// 	关闭连接
+	websocket.onclose = function(event) {
+		//alert("连接已关闭");
+		console.log("连接已关闭");
+		console.log("WebSocket:已关闭：Client notified socket has closed：", event);
+		//document.getElementById("send").disabled = true; //关闭连接禁用按钮
+	};
+
+	//单聊
+	function doSendUser() {
+		//alert(websocket.readyState + ":" + websocket.OPEN);
+		//对象为空了
+		if (websocket == undefined || websocket == null) {
+			//alert('WebSocket connection not established, please connect.');
+			alert('您的连接已经丢失，请退出聊天重新进入');
+			return;
+		}
+
+		//获取用户要发送的消息内容
+		var msg = $("#inputMsg").val();
+		if (msg == "") {
+			return;
+		} else {
+			var data = {};
+			data["fromName"] = username;
+			data["toName"] = "Mr.Long";
+			data["text"] = msg;
+			//发送消息
+			websocket.send(JSON.stringify(data));
+			//发送完消息，清空输入框
+			$("#inputMsg").val("");
+		}
+
+		// 		if (websocket.readyState == websocket.OPEN) {
+		// 			var msg = $("#inputMsg").val();
+		// 			websocket.send("#anyone#" + msg);
+		// 			alert("发送成功！");
+		// 		} else {
+		// 			alert("连接失败！");
+		// 		}
+	}
+
+	//群聊
+	function doSendUsers() {
+		if (websocket == undefined || websocket == null) {
+			//alert('WebSocket connection not established, please connect.');
+			alert('您的连接已经丢失，请退出聊天重新进入');
+			return;
+		}
+
+		//获取用户要发送的消息内容
+		var msg = $("#inputMsg").val();
+		if (msg == "") {
+			return;
+		} else {
+			var data = {};
+			data["fromName"] = username;
+			data["toName"] = null;
+			data["text"] = msg;
+			//发送消息
+			websocket.send(JSON.stringify(data));
+			//发送完消息，清空输入框
+			$("#inputMsg").val("");
+		}
+
+	}
+
+	//关闭Websocket连接
+	function closeWebSocket() {
+		if (websocket != null) {
+			websocket.close();
+			websocket = null;
+		}
+
+	}
+
+	//清空聊天记录
+	$("#clean").click(function() {
+		$("#singleMsg").val("");
+		$("#groupMsg").val("");
+	});
+
+	//随机生成长度自定义的字符串
+	function random(length) {
+		var str = Math.random().toString(36).substr(2);
+		if (str.length >= length) {
+			return str.substr(0, length);
+		}
+		str += random(length - str.length);
+		return str;
+	}
+</script>
+</html>

@@ -4,6 +4,8 @@ import Login from '../components/login'   //自己编写的vue
 import Content from '../components/container'
 import Register from '../components/register'
 import Repair from '../components/repair'
+import listAgree from "../components/listAgree"
+import listAll from "../components/listAll";
 
 Vue.use(Router)  //运用组件
 
@@ -15,11 +17,24 @@ export default new Router({
     },
     {
       path: '/login',
-      component: Login
+      component: Login,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/content',
-      component: Content
+      component: Content,
+      children: [
+        {
+          path: 'listAgree',
+          component: listAgree
+        },
+        {
+          path: 'listAll',
+          component: listAll
+        }
+      ]
     },
     {
       path: '/register',

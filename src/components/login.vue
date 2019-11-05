@@ -45,8 +45,7 @@
 
 <script>
   import qs from 'qs'
-  import vuex from 'vuex'
-  import Login from '../api/httpLogin'
+  import Cookie from 'js-cookie'
 
     export default {
         name: "login",
@@ -64,30 +63,32 @@
                         type: 'error'
                     })
                 }else{
-                Login.post('/user/login',
+                this.$axios.post('/user/login',
                     qs.stringify({
                         username: this.username,
                         password: this.password
                     })
                 )
                     .then(response => {
-                        console.log(response)
-                        if(response.data.status === 200){
-                             /*  var user = {id: Date.now(),username: this.username,password: this.password}
-                            user = JSON.stringify(user)  //将JSON转为字符串存到变量里*/  //存入对象user中的username和password
-                            /*console.log(user)*/
-
-                            //分别存储username 和 password
-                            localStorage.setItem("username",this.username)  //将用户信息存到localStorage里，把数据username传入变量username中
-                          /*  localStorage.setItem("password",this.password)//将用户信息存到localStorage里，把数据password传入变量password中*/
+                        console.log(response.data)
+                        if(response.data.status === 200) {
+                            /*if (Cookie.get('token') === undefined || Cookie.get('token') === null) {
+                                Cookie.set('token',"")
+                            }*/
+                            /*var token = response.data.username + '/' + response.data.sign + '/' + response.data.expire*/
+                            var token = response.data.token
+                            Cookie.set('token',token)
+                            localStorage.setItem("token",token)   //将用户信息存到localStorage里
+                            this.$message.success('登录成功')
+                            this.$router.push('/content')
+                        }else if(response.data.status === 404) {
+                            this.$message.warning('用户名未注册或用户名与密码不匹配，请重新输入')
                         }
                     })
                     .catch(error =>{
                         console.log(error)
-                        this.$message({
-                            message: 'ERROR!',
-                            type: 'error'
-                          })
+                        this.$message.error('登录失败!')
+                        this.$router.push('/')
                     })
                 }
             }

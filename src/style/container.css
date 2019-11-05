@@ -92,6 +92,16 @@
   height: 36px;
   background-color: rgba(128,128,128,0.4);
 }
+.item {
+  margin-bottom: 6px;
+}
+#tips{
+  font-size: 14px;
+  color: #818181;
+  opacity: 0.5;
+  position: relative;
+  top: 200px;
+}
 .el-icon-circle-plus-outline,
 .el-icon-bell{  /*36px高*/
   font-size: 26px;
@@ -103,14 +113,10 @@
 .addFriendBox{
   text-align: left;
 }
-
-/*.el-col {
-  margin-bottom: 20px;
+#icon{  /*高度470px*/
+  font-size: 100px;
+  opacity: 0.1;
+  position: relative;
+  top: 150px;
 }
-.el-row {
-  border-radius: 4px;
-}*/
 
-/*.bg-purple {
-  background: #d3dce6;
-}*/
