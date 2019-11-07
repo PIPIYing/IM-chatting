@@ -1,40 +1,52 @@
 <template>
   <div id="listAgree">  <!--v-for指令实行好友列表的循环-->  <!--待同意好友列表-->
-      <el-row  v-for="(item,index) in agreUserinfoList" :key="index">
+
+    <el-tree
+      class="tree"
+      :data="FriendsAgreeListOne"
+      empty-text="待同意好友列表为空">
+      <el-row  v-for="(item,index) in FriendNonUserinfoList" :key="index">
         <div  class="listFriends">
-          <div  class="listAvatar" @click="selectFriendInfo(index)">
-            <el-avatar :size="30" :src="item.photo" fit="scale-down"></el-avatar>
-         </div>
-
-          <el-dialog
-            title="个人资料"
-            :visible.sync="dialogVisibleCheck"
-            :modal-append-to-body='false'
-            :lock-scroll="false"
-            top="13vh">
-            <div id="userBoxLeft">
-              <div v-model="nickname" class="userBox">昵称：{{ nickname  }}</div>
-              <div v-model="username" class="userBox">用户名：{{ username  }}</div>
-              <div v-model="sex" class="userBox">性别：{{ sex  }}</div>
-              <div v-model="phone" class="userBox">手机号码：{{  phone  }}</div>
-              <div v-model="age" class="userBox">年龄：{{  age  }}</div>
-              <div v-model="address" class="userBox">地区：{{ address  }}</div>
-            </div>
-            <div id="userBoxRight">
-              <el-avatar :size="100" :src="photo" fit="scale-down"></el-avatar>
-              <div v-model="email" class="userBox">邮箱：{{  email  }}</div>
-              <div v-model="des" class="userBox">个性签名：{{  des  }}</div>
-            </div>
-
-            <div slot="footer" class="dialogCheck-footer">
-             <el-button @click="dialogVisibleCheck = false">关 闭</el-button>
-             <!--<el-button type="primary" @click="dialogVisible = false">确 定</el-button>-->
-           </div>
-          </el-dialog>
-
+          <div  class="listAvatar">
+            <el-avatar :size="20" :src="item.photo" fit="scale-down"></el-avatar>
+          </div>
           <span class="listName">{{  item.username  }}</span>
+          <el-button type="text" class="acceptFri" @click="agreeFriend(index)">接受</el-button>
+          <el-button type="text" class="rejectFri" @click="rejectFriend(index)">拒绝</el-button>
         </div>
       </el-row>
+    </el-tree>
+    <!-- <el-row  v-for="(item,index) in FriendNonUserinfoList" :key="index">
+   <div  class="listFriends">
+     <div  class="listAvatar" @click="selectFriendInfo(index)">
+       <el-avatar :size="30" :src="item.photo" fit="scale-down"></el-avatar>
+     </div>
+
+     <span class="listName">{{  item.username  }}</span>
+   </div>
+ </el-row>
+ <el-row  v-for="(item,index) in UserNonFriendinfoList" :key="index">
+   <div  class="listFriends">
+     <div  class="listAvatar" @click="selectFriendInfo(index)">
+       <el-avatar :size="30" :src="item.photo" fit="scale-down"></el-avatar>
+     </div>
+
+     <span class="listName">{{  item.username  }}</span>
+   </div>
+ </el-row>-->
+    <el-tree
+      class="tree"
+      :data="FriendsAgreeListTwo">
+      <el-row  v-for="(item,index) in UserNonFriendinfoList" :key="index">
+        <div  class="listFriends">
+          <div  class="listAvatar">
+            <el-avatar :size="20" :src="item.photo" fit="scale-down"></el-avatar>
+          </div>
+          <span class="listName">{{  item.username  }}</span>
+          <!--<span> <el-button plain class="acceptFri">重发</el-button> </span>-->
+        </div>
+      </el-row>
+    </el-tree>
 <!--    {{ user }}-->
   </div>
 </template>
@@ -42,14 +54,31 @@
 <script>
   import axios from 'axios'
   import qs from 'qs'
-  import Cookie from 'js-cookie'
 
     export default {
         name: "listAgree",
         props: ['user'],
         data(){
             return {
-                agreUserinfoList: [],
+                FriendsAgreeListOne:[{
+                    id: 1,
+                    label: '接收到的好友请求',
+                    children: [{
+                        id: 2,
+                        label: '目前没有收到好友请求'
+                    }]
+                }],
+                FriendsAgreeListTwo:[{
+                        id: 1,
+                        label: '已发送的好友请求',
+                        children: [{
+                            id: 2,
+                            label: '目前没有发送的好友请求'
+                        }]
+                    }],
+             /*   list: [],*/
+                FriendNonUserinfoList: [],
+                UserNonFriendinfoList:[],
                 dialogVisibleCheck: false,
                 friendname: '',
                 nickname: "",
@@ -79,19 +108,73 @@
                             type
                         })
                     ).then(response => {
-                      /*  console.log(response)*/
-                        this.agreUserinfoList = response.data.agreUserinfoList
-                        console.log(this.agreUserinfoList)   /*定义一个变量或者对象数组把姓名和头像留下来*/
+                       /* console.log(response.data.FriendNonUserinfoList)  //对方给user发好友请求，user尚未回复
+                        console.log(response.data.UserNonFriendinfoList)  //user给对方发好友请求，对方还没回复*/
+                        this.FriendNonUserinfoList = response.data.FriendNonUserinfoList
+                        this.UserNonFriendinfoList = response.data.UserNonFriendinfoList
+                       /* this.agreUserinfoList = response.data.agreUserinfoList
+                        console.log(this.agreUserinfoList)  */
+                       /* for(var i=0;i<this.agreUserinfoList.length;i++){
+                            if(this.agreUserinfoList[i].status === 0)
+
+                        }*/
                     }).catch(error => {
                         console.log(error)
                     })
-            }, //获取好友列表
-            selectFriendInfo(index){
+            }, //获取待同意的好友列表
+            agreeFriend(index) {
+                /*this.dialogVisibleNotice = false*/
+                var username = this.user
+                /*  var friendname = this.friendName*/
+                var friendname = this.FriendNonUserinfoList[index].username  //从获取好友列表中可以获取到待同意的friendname
+                axios.post('/friend/agreeFriend',
+                    qs.stringify({
+                        username,
+                        friendname
+                    })).then(response => {
+                    console.log(response)
+                    if (response.data.status === 200)
+                        this.$message.success('请求发送成功！你们已成为好友！')
+                    else if (response.data.status === 404)
+                        this.$message.error('该用户不存在！')
+                    else if (response.data.status === 401)
+                        this.$message.warning('该用户已是您的好友')
+                }).catch(error => {
+                    console.log(error)
+                    this.$message.error('请求失败!')
+                })
+            },  //接受好友
+            rejectFriend(index) {
+                /*this.dialogVisibleNotice = false*/
+                var username = this.user
+                var friendname = this.FriendNonUserinfoList[index].username
+                axios.post('/friend/agreeFriend',
+                    qs.stringify({
+                        username,
+                        friendname
+                    })
+                ).then(response => {
+                    console.log(response)
+                    if (response.data.status === 200)
+                        this.$message.success('请求发送成功！您已拒绝本次好友申请！')
+                    else if (response.data.status === 404)
+                        this.$message.error('您已经拒绝过该用户或该用户并没有添加您为好友！')
+                }).catch(error => {
+                    console.log(error)
+                    this.$message.error('请求失败!')
+                })
+            },  //拒绝好友
+
+
+
+
+
+           /* selectFriendInfo(index){
                 this.dialogVisibleCheck = true
                 var username = this.user
-                /*console.log(index)*/
+                /!*console.log(index)*!/
                 var friendname = this.agreUserinfoList[index].username  //通过index找到每个人的username
-               /* console.log(friendname)*/
+               /!* console.log(friendname)*!/
                 axios.get('/friend/selectFriendInfo',{
                     params: {
                     username,
@@ -113,28 +196,32 @@
                     console.log(error)
                 })
 
-            }
+            }*/   //查询指定好友的信息
         }
     }
 </script>
 
 <style scoped>
-.listFriends {
+/*.listFriends {
   height: 42px;
   background: rgba(255,255,255,0.4);
-  /*border-bottom: #8c939d 2px solid;*/
-}
+  border-bottom: #8c939d 2px solid;
+}*/
 .listAvatar{
   float: left;
-  padding: 5px 0 5px 15px;
+  padding-top: 6px;
   cursor: pointer;
 }
 .listName{
   float: left;
-  padding: 12px 0 8px 15px;
+  padding: 8px 0 0 20px;
   font-size: 12px;
+  cursor: default;
 }
-#userBoxLeft{
+.tree{
+  background-color: #D3DCE6;
+}
+/*#userBoxLeft{
   float: left;
   text-align: left;
 }
@@ -157,6 +244,13 @@
   width: 200px;
   margin: 10px;
   padding: 5px;
-/*  background-color: #409EFF;*/
+!*  background-color: #409EFF;*!
+}*/
+.acceptFri,
+.rejectFri{
+  font-size: 13px;
+}
+.acceptFri{
+  margin-left: 40px;
 }
 </style>

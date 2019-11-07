@@ -242,7 +242,7 @@
                   }
               },
               postInfo() {
-                  var userInfo = {
+                  /*var userInfo = {
                       nickname: this.nickname,
                       username: this.username,
                       sex: this.sex,
@@ -254,11 +254,23 @@
                       email: this.email,
                       des: this.des,
                       address: this.address
-                  } //上传图片只能是用form表单的形式代替data进行上传
+                  } //上传图片只能是用form表单的形式代替data进行上传*/
                   if (this.username === '' || this.password === '' || this.rePassword === '') {
                       this.$message.error('请先填写好必填信息再注册')
                   } else {
-                      this.axios.post('/user/submit', userInfo)
+                      this.axios.post('/user/submit', {
+                          nickname: this.nickname,
+                          username: this.username,
+                          sex: this.sex,
+                          password: this.password,
+                          phone: this.phone,
+                          age: this.age,
+                          photo: this.photo,
+                          photoFile: this.form,
+                          email: this.email,
+                          des: this.des,
+                          address: this.address
+                      })
                           .then(response => {
                               console.log(response)
                               if(response.data.status === 200){

@@ -17,7 +17,6 @@ import qs from 'qs'    //json数据转化
 axios.defaults.baseURL = "http://47.97.214.92:8080/CloudServer"
 
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
-/*axios.defaults.headers.common['token'] = '';*/
 axios.defaults.headers.common['token'] = Cookie.get('token')
 
 //将API方法绑定到全局
@@ -46,15 +45,25 @@ axios.interceptors.request.use(config => {
 /*  if (Cookie.get('token') === undefined || Cookie.get('token') === "") {
     Cookie.set('token',"")
   }*/
-  var token = Cookie.get('token')
+/*  var token = Cookie.get('token')
   if(token === undefined || token === null) {
     //前端判断
     Cookie.set('token',"")
     Message.warning({
       message: '登录验证失败！请重新登录',
       center: true
-    })
+    })  //无法排除登录和注册的请求
     this.$router.push('/login')
+  }*/
+const token = Cookie.get('token')
+  token?config.headers.token = token:null
+  if(token === null || token === undefined){
+    if(config.data.status === 401)
+     Message.warning({
+      message: '登录验证失败！请重新登录',
+      center: true
+     })
+    router.replace('/login')
   }
   return config;
 }, error => {
@@ -66,15 +75,6 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(
   response => {
 /*    loadinginstace.close()*/
-/*    if (Cookie.get('token') === undefined || Cookie.get('token') === "") {
-      Cookie.set('token',"")
-      if(response.data.status === 401)
-      {
-        console.log(response)
-        this.$message.warning("登录验证失效，请重新验证")
-        this.$router.push('/login')
-      }
-    }*/
     return response;
 },
   error => {

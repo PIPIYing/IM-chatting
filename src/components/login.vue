@@ -57,6 +57,7 @@
         },
         methods: {
             login(){
+                var username = this.username
                 if(this.username === '' || this.password === '')
                 { this.$message({
                         message: '请输入用户名和密码后再登录',
@@ -79,6 +80,7 @@
                             var token = response.data.token
                             Cookie.set('token',token)
                             localStorage.setItem("token",token)   //将用户信息存到localStorage里
+                            localStorage.setItem("username",username)  //将username存入localStorage
                             this.$message.success('登录成功')
                             this.$router.push('/content')
                         }else if(response.data.status === 404) {

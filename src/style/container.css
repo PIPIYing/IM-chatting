@@ -10,6 +10,7 @@
 }
 
 #container{ /*垂直居中*/
+  font-size: 16px;
   background-color:rgba(255,255,255,0.3);
   width: 860px;
   height: 470px;

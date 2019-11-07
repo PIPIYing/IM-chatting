@@ -62,7 +62,7 @@
         active-text-color="yellow">
 
         <el-menu-item index="1">
-          <i class="el-icon-chat-dot-round" @click="comNameList='chatting'"></i>
+          <i class="el-icon-chat-dot-round" @click="chattingChange"></i>
         </el-menu-item>
         <el-menu-item index="2" @click="getFriendlistAll">  <!--通过v-show来实现组件的切换-->
             <i class="el-icon-user"></i>
@@ -101,8 +101,8 @@
     <el-aside width="30%" id="list">
       <div id="otherIcon">
 
-        <i class="el-icon-bell" @click="dialogVisibleNotice = true"><el-badge is-dot class="item" v-show="seeDot"></el-badge></i>
-        <el-dialog
+        <i class="el-icon-bell" @click="dialogVisibleNotice = true"><!--<el-badge is-dot class="item" v-show="seeDot"></el-badge>--></i>
+        <!--<el-dialog
           class="noticeBox"
           title="好友请求"
           :visible.sync="dialogVisibleNotice"
@@ -118,7 +118,7 @@
             <el-button @click="rejectFriend">拒 绝</el-button>
             <el-button type="primary" @click="agreeFriend">接 受</el-button>
           </span>
-        </el-dialog>
+        </el-dialog>-->
 
         <i class="el-icon-circle-plus-outline"  @click="dialogVisibleAdd = true"></i>  <!--刷新与添加好友是反的！！-->
         <el-dialog
@@ -159,7 +159,7 @@
       </el-col>-->
     </el-aside>
     <el-main width="60%">
-      <component :is="comNameMain"></component>
+      <component :is="comNameMain" :user="username"></component>
 
     </el-main>
   </el-container>
@@ -209,12 +209,12 @@
                 friendName: '',
                 dialogVisibleChange: false,
                 dialogVisibleAdd: false,
-                dialogVisibleNotice: false,
+                /*dialogVisibleNotice: false,*/
                 dialogVisibleExit: false,
-                seeDot: false,  //通知的小红点
+                /*seeDot: false,  //通知的小红点*/
                 comNameList: 'tips',
-                /*comNameMain: 'chattingIcon'*/
-                comNameMain: 'chattingRoom'
+                comNameMain: 'chattingIcon'
+                /*comNameMain: 'chattingRoom'*/
                 /*chatUsername: '',
                 chatPhoto: ''*/
             }
@@ -246,13 +246,13 @@
             selectUserInfo() {
                 /*var user = JSON.parse(localStorage.getItem("users"))  //读取保存在localStorage里的users对象
                 var username = user.username  //取出username的值*/
-                /* var username = localStorage.getItem("username")  //取出username的值*/
+                var username = localStorage.getItem("username")  //取出username的值
                 axios.get('/user/selectUserInfo', {
                     params: {
-                        /*   username  //token 传过去之后 username就不用再传了*/
+                           username  //token 传过去之后 username就不用再传了
                     }
                     }).then(response => {
-                        console.log(response)
+                        /*console.log(response)*/
                         this.username = response.data.userInfo.username
                         this.nickname = response.data.userInfo.nickname
                         this.photo = response.data.userInfo.photo
@@ -277,7 +277,7 @@
                     });
             },  //关闭前的弹出警告框
             changeUserInfo() {
-                var userInfo = {
+               /* var userInfo = {
                     username: this.username,
                     nickname: this.nickname,
                     photo: this.photo,
@@ -287,8 +287,20 @@
                     email: this.email,
                     des: this.des,
                     address: this.address
-                }
-                    axios.post('/user/changeUserInfo', userInfo)
+                }*/
+                    axios.post('/user/changeUserInfo', {
+                        nickname: this.nickname,
+                        username: this.username,
+                        sex: this.sex,
+                        password: this.password,
+                        phone: this.phone,
+                        age: this.age,
+                        photo: this.photo,
+                        photoFile: this.form,
+                        email: this.email,
+                        des: this.des,
+                        address: this.address
+                    })
                         .then(response => {
                             console.log(response)
                             this.$message.success('修改成功!')
@@ -319,87 +331,20 @@
                     this.$message.error('ERROR!')
                 })
             },  //添加好友
-            agreeFriend() {
-                this.dialogVisibleNotice = false
-                var username = this.username
-                /*  var friendname = this.friendName*/
-                var friendname = "Mr.Long"  //写死了friendname  到时从获取好友列表中可以获取到待同意的friendname
-                  axios.post('/friend/agreeFriend',
-                        qs.stringify({
-                            username,
-                            friendname
-                        })).then(response => {
-                            console.log(response)
-                            if (response.data.status === 200)
-                                this.$message.success('请求发送成功！你们已成为好友！')
-                            else if (response.data.status === 404)
-                                this.$message.error('该用户不存在！')
-                            else if (response.data.status === 401)
-                                this.$message.warning('该用户已是您的好友')
-                        }).catch(error => {
-                            console.log(error)
-                            this.$message.error('请求失败!')
-                        })
-            },  //接受好友
-            rejectFriend() {
-                this.dialogVisibleNotice = false
-                var username = this.username
-                var friendname
-                axios.post('/friend/agreeFriend',
-                    qs.stringify({})
-                ).then(response => {
-                    console.log(response)
-                    if (response.data.status === 200)
-                        this.$message.success('请求发送成功！您已拒绝本次好友申请！')
-                    else if (response.data.status === 404)
-                        this.$message.error('您已经拒绝过该用户或该用户并没有添加您为好友！')
-                }).catch(error => {
-                    console.log(error)
-                    this.$message.error('请求失败!')
-                })
-            },  //拒绝好友
-            deleteFriend() {
-                var username = this.username
-                /*  var friendname = this.friendName*/
-                var friendname = "Mr.Long"  //写死了friendname  到时从获取好友列表中可以获取到待同意的friendname
-                    axios.get('/friend/deleteFriend', {
-                        params: {
-                            username,
-                            friendname
-                        }
-                    })
-                        .then(response => {
-                            console.log(response)
-                            if (response.data.status === 200)
-                                this.$message.success('已删除该好友！')
-                            else if (response.data.status === 404)
-                                this.$message.error('该用户不存在！')
-                            else if (response.data.status === 401)
-                                this.$message.warning('申请已发送或该用户不是您的好友')
-                        })
-                        .catch(error => {
-                            console.log(error)
-                            this.$message({
-                                message: 'ERROR!',
-                                type: 'error'
-                            })
-                        })
-            },  //删除好友
             addClear() {
                 if (this.dialogVisibleAdd === false)
                     var friendname = this.friendName = ''
             },  //添加好友搜索框的清空
-
-            //查询指定好友信息
-            //删除好友
-
-
             getFriendlistAgree() {
                 this.comNameList = 'listAgree'
             },  //已同意好友的列表
             getFriendlistAll() {
                 this.comNameList = 'listAll'
             },  //所有好友的列表
+            chattingChange(){
+                this.comNameList='chatting'
+                this.comNameMain='chattingRoom'
+            },
             exit() {
                 this.dialogVisibleExit = false
                 var username = this.username
@@ -419,7 +364,6 @@
             cancelExit() {
                 this.dialogVisibleExit = false
                 this.$message.info('已取消退出')
-
             }  //取消退出
         }
     }
