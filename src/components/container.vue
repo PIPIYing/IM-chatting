@@ -3,7 +3,13 @@
   <el-container>
     <el-aside width="10%" id="sidebar">
       <div id="block" @click="dialogVisibleChange = true">
-        <el-avatar :size="50" :src="photo" fit="scale-down"></el-avatar>
+        <el-tooltip
+          class="item"
+          effect="dark"
+          placement="left"
+          content="个人资料">
+          <el-avatar :size="50" :src="photo" fit="scale-down"></el-avatar>
+        </el-tooltip>
       </div>
       <el-dialog
         title="个人资料"
@@ -33,12 +39,15 @@
         </div>
         <div id="userBoxRight">
           <el-upload
-          action="http://47.97.214.92:8080/CloudServer/photo"
+          action="http://47.97.214.92:8080/CloudServer/"
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload">
-            <el-avatar v-if="photo" :size="100" :src="photo" fit="fill" ></el-avatar>
-            <img v-else src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" alt="修改个人资料">  <!--待验证-->
+          :before-upload="beforeAvatarUpload"
+          name="file"
+          ref="file">
+            <el-avatar :size="100" :src="showPhoto" fit="fill" ></el-avatar>  <!--待验证-->
+         <!--   <el-avatar v-else :size="100" :src="showPhoto" fit="fill" ></el-avatar>-->
+           <!-- <img v-if="showPhoto" :src="showPhoto" class="avatar" alt="用户头像">-->
 
           </el-upload>
 <!--          <el-button type="primary" plain>修改头像<i class="el-icon-upload el-icon&#45;&#45;right"></i></el-button>-->
@@ -62,23 +71,58 @@
         active-text-color="yellow">
 
         <el-menu-item index="1">
-          <i class="el-icon-chat-dot-round" @click="chattingChange"></i>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="left"
+            content="会话聊天">
+          <i class="el-icon-chat-dot-round" @click="getChatting"></i>
+          </el-tooltip>
         </el-menu-item>
-        <el-menu-item index="2" @click="getFriendlistAll">  <!--通过v-show来实现组件的切换-->
+        <el-menu-item index="2" @click="getFriendlistAll">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="left"
+            content="好友列表">
             <i class="el-icon-user"></i>
+          </el-tooltip>
         </el-menu-item>
-
         <el-menu-item index="3" @click="getFriendlistAgree">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="left"
+            content="分组列表">
             <i class="el-icon-user-solid"></i>
+          </el-tooltip>
         </el-menu-item>
-        <el-menu-item index="4">
+        <el-menu-item index="4" @click="getGroups">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="left"
+            content="群聊列表">
           <i class="el-icon-connection"></i>
+          </el-tooltip>
         </el-menu-item>
-        <el-menu-item index="5">
+        <el-menu-item index="5" @click="getSetting">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="left"
+            content="设置操作">
           <i class="el-icon-setting"></i>
+          </el-tooltip>
         </el-menu-item>
-        <el-menu-item index="6">
-          <i class="el-icon-switch-button"  @click="dialogVisibleExit = true"></i>
+        <el-menu-item index="6" @click="dialogVisibleExit = true">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="left"
+            content="退出系统">
+          <i class="el-icon-switch-button"></i>
+          </el-tooltip>
         </el-menu-item>
         <el-dialog
           class="exitBox"
@@ -101,7 +145,7 @@
     <el-aside width="30%" id="list">
       <div id="otherIcon">
 
-        <i class="el-icon-bell" @click="dialogVisibleNotice = true"><!--<el-badge is-dot class="item" v-show="seeDot"></el-badge>--></i>
+        <i class="el-icon-refresh-right" @click="refresh"><!--<el-badge is-dot class="item" v-show="seeDot"></el-badge>--></i>
         <!--<el-dialog
           class="noticeBox"
           title="好友请求"
@@ -141,25 +185,10 @@
         </el-dialog>
 
       </div>
-<!--      <component :is="comName"
-                 class="listFriends"
-                 :key="list"
-                 v-for="item in list"></component>-->
-
       <component :is="comNameList" @show="selectUserInfo" :user="username"></component>
-   <!--   <chatting v-show="chatting"></chatting>
-      <listAll v-show="listAll"></listAll>-->
-
-      <!--<el-col>
-        <el-row>
-          <div class="listFriends" v-for="item in list" :key="item.id">
-          {{  item.id  }} -&#45;&#45; {{  item.name  }}
-          </div>
-        </el-row>
-      </el-col>-->
     </el-aside>
     <el-main width="60%">
-      <component :is="comNameMain" :user="username"></component>
+      <component :is="comNameMain" :user="username" :com="comNameMain"></component>
 
     </el-main>
   </el-container>
@@ -182,6 +211,7 @@
 
     export default {
         name: "container",
+        inject: ['reload'],
         components: {
             listAgree,
             listAll,
@@ -213,7 +243,9 @@
                 dialogVisibleExit: false,
                 /*seeDot: false,  //通知的小红点*/
                 comNameList: 'tips',
-                comNameMain: 'chattingIcon'
+                comNameMain: 'chattingIcon',
+                com: '',
+                showPhoto: ''
                 /*comNameMain: 'chattingRoom'*/
                 /*chatUsername: '',
                 chatPhoto: ''*/
@@ -228,34 +260,43 @@
             this.addClear()
         },
         methods: {
-            handleAvatarSuccess(res, file) {
-                this.photo = URL.createObjectURL(file.raw);
-            },  //创建头像文件
-            beforeAvatarUpload(file) {
-                const isJPG = file.type === 'image/jpeg' || 'image/png';
+            beforeAvatarUpload(file){
+                //对上传的图片文件进行判断
+                const isJPG = file.type === 'image/jpeg' || 'image/png' || 'image/gif';
                 const isLt2M = file.size / 1024 / 1024 < 2;
-
                 if (!isJPG) {
-                    this.$message.error('上传头像图片只能是 JPG 或 PNG 格式!');
+                    this.$message.error('上传头像图片只能是 JPG 或 PNG 或 GIF 格式!');
                 }
                 if (!isLt2M) {
                     this.$message.error('上传头像图片大小不能超过 2MB!');
                 }
-                return isJPG && isLt2M;
-            }, // 上传头像前的检查图片大小和图片格式
+
+                //上传前把参数丢给后台
+               /* this.showPhoto = file.name*/
+                this.photoFile = file
+                this.photo = file.name
+                /*   var formData = JSON.parse(this.formData)*/
+                /*  console.log(formData.nickname)*/
+            },  //上传前的判断
+            handleAvatarSuccess(res,file) {
+                this.showPhoto = URL.createObjectURL(file.raw);
+                //创建一个 DOMString，其中包含一个表示参数中给出的对象的URL。
+                // 这个 URL 的生命周期和创建它的窗口中的 document 绑定。这个新的URL 对象表示指定的 File 对象或 Blob 对象。
+            },  //创建前端展示照片的url
             selectUserInfo() {
                 /*var user = JSON.parse(localStorage.getItem("users"))  //读取保存在localStorage里的users对象
                 var username = user.username  //取出username的值*/
                 var username = localStorage.getItem("username")  //取出username的值
                 axios.get('/user/selectUserInfo', {
                     params: {
-                           username  //token 传过去之后 username就不用再传了
+                           username
                     }
                     }).then(response => {
-                        /*console.log(response)*/
+                        console.log(response)
                         this.username = response.data.userInfo.username
                         this.nickname = response.data.userInfo.nickname
                         this.photo = response.data.userInfo.photo
+                        this.showPhoto = response.data.userInfo.photo
                         this.sex = response.data.userInfo.sex
                         this.age = response.data.userInfo.age
                         this.phone = response.data.userInfo.phone
@@ -263,13 +304,13 @@
                         this.des = response.data.userInfo.des
                         this.status = response.data.userInfo.status
                         this.logintime = response.data.userInfo.logintime
-
+                        this.address = response.data.userInfo.address
                     }).catch(error => {
                         console.log(error)
                     })
             },  //获取用户自身信息
             handleClose(done) {
-                this.$confirm('确认关闭？')  //有个小bug
+                this.$confirm('确认关闭？')
                     .then(_ => {
                         done();
                     })
@@ -277,40 +318,36 @@
                     });
             },  //关闭前的弹出警告框
             changeUserInfo() {
-               /* var userInfo = {
-                    username: this.username,
-                    nickname: this.nickname,
-                    photo: this.photo,
-                    sex: this.sex,
-                    age: this.age,
-                    phone: this.phone,
-                    email: this.email,
-                    des: this.des,
-                    address: this.address
-                }*/
-                    axios.post('/user/changeUserInfo', {
-                        nickname: this.nickname,
-                        username: this.username,
-                        sex: this.sex,
-                        password: this.password,
-                        phone: this.phone,
-                        age: this.age,
-                        photo: this.photo,
-                        photoFile: this.form,
-                        email: this.email,
-                        des: this.des,
-                        address: this.address
-                    })
+                //创建表单对象
+                var formData = new FormData();
+                //后端接受参数
+                formData.append("photoFile",this.photoFile)
+                formData.append("photo",this.photo)
+                formData.append("nickname",this.nickname)
+                formData.append("username",this.username)
+                formData.append("sex",this.sex)
+                formData.append("phone",this.phone)
+                formData.append("age",this.age)
+                formData.append("email",this.email)
+                formData.append("des",this.des)
+                formData.append("address",this.address)
+                    axios.post('/user/changeUserInfo', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                         })
                         .then(response => {
                             console.log(response)
                             this.$message.success('修改成功!')
+                            //让后台返回photo路径才可正常显示修改后的头像
+                            this.reload() //刷新页面
                         })
                         .catch(error => {
                             console.log(error)
-                            this.$message.error('ERROR!')
+                            this.$message.error('修改失败!')
                         })
                 this.dialogVisibleChange = false
-            },  //修改用户信息  修改成功但是报错了小bug!!!
+            },  //修改用户信息
             addFriend() {
                 var username = this.username
                 var friendname = this.friendName
@@ -334,17 +371,30 @@
             addClear() {
                 if (this.dialogVisibleAdd === false)
                     var friendname = this.friendName = ''
-            },  //添加好友搜索框的清空
+            },  //添加好友搜索框的清空  可优化
             getFriendlistAgree() {
                 this.comNameList = 'listAgree'
+                this.comNameMain='chattingIcon'
             },  //已同意好友的列表
             getFriendlistAll() {
                 this.comNameList = 'listAll'
+                this.comNameMain='chattingIcon'
             },  //所有好友的列表
-            chattingChange(){
+            getChatting(){
                 this.comNameList='chatting'
                 this.comNameMain='chattingRoom'
-            },
+            },  //切换到会话组件
+            getGroups(){
+                /*this.comNameList='groupChatting'*/
+                this.comNameMain='chattingIcon'
+            },  //切换到群组组件  【未完成】
+            getSetting(){
+                /*this.comNameList='setting'*/
+                this.comNameMain='chattingIcon'
+            },  //切换到设置组件  【未完成】
+            refresh(){
+              this.reload()
+            },  //刷新
             exit() {
                 this.dialogVisibleExit = false
                 var username = this.username

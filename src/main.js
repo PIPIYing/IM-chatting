@@ -56,14 +56,14 @@ axios.interceptors.request.use(config => {
     this.$router.push('/login')
   }*/
 const token = Cookie.get('token')
-  token?config.headers.token = token:null
+  token?config.headers.token = token:null  //token非空就赋值到 headers ;空就置空
   if(token === null || token === undefined){
-    if(config.data.status === 401)
+    if(config.data.status === 401){
      Message.warning({
       message: '登录验证失败！请重新登录',
       center: true
      })
-    router.replace('/login')
+    router.replace('/login')}  //注册时token undefined
   }
   return config;
 }, error => {

@@ -19,12 +19,7 @@
           <br/>
 
           <label for="login"></label>
-          <!--<router-link to="/content">-->
           <input type="button" value="立即登录" id="login" @click="login">
-            <!--<div id="login">
-              立即登录
-            </div>-->
-          <!--</router-link>-->
 
         </form>
 
@@ -76,7 +71,7 @@
                             /*if (Cookie.get('token') === undefined || Cookie.get('token') === null) {
                                 Cookie.set('token',"")
                             }*/
-                            /*var token = response.data.username + '/' + response.data.sign + '/' + response.data.expire*/
+                            /*var token = response.data.username + '/' + response.data.sign + '/' + response.data.expire*/  //token构建
                             var token = response.data.token
                             Cookie.set('token',token)
                             localStorage.setItem("token",token)   //将用户信息存到localStorage里
@@ -85,6 +80,8 @@
                             this.$router.push('/content')
                         }else if(response.data.status === 404) {
                             this.$message.warning('用户名未注册或用户名与密码不匹配，请重新输入')
+                        }else{
+                            this.$message.error('登录失败！请重试')
                         }
                     })
                     .catch(error =>{

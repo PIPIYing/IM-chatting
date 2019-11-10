@@ -3,8 +3,7 @@
 
     <el-tree
       class="tree"
-      :data="FriendsAgreeListOne"
-      empty-text="待同意好友列表为空">
+      :data="FriendsAgreeListOne">
       <el-row  v-for="(item,index) in FriendNonUserinfoList" :key="index">
         <div  class="listFriends">
           <div  class="listAvatar">
@@ -16,24 +15,7 @@
         </div>
       </el-row>
     </el-tree>
-    <!-- <el-row  v-for="(item,index) in FriendNonUserinfoList" :key="index">
-   <div  class="listFriends">
-     <div  class="listAvatar" @click="selectFriendInfo(index)">
-       <el-avatar :size="30" :src="item.photo" fit="scale-down"></el-avatar>
-     </div>
 
-     <span class="listName">{{  item.username  }}</span>
-   </div>
- </el-row>
- <el-row  v-for="(item,index) in UserNonFriendinfoList" :key="index">
-   <div  class="listFriends">
-     <div  class="listAvatar" @click="selectFriendInfo(index)">
-       <el-avatar :size="30" :src="item.photo" fit="scale-down"></el-avatar>
-     </div>
-
-     <span class="listName">{{  item.username  }}</span>
-   </div>
- </el-row>-->
     <el-tree
       class="tree"
       :data="FriendsAgreeListTwo">
@@ -47,7 +29,33 @@
         </div>
       </el-row>
     </el-tree>
-<!--    {{ user }}-->
+
+    <el-tree
+      class="tree"
+      :data="FriendsRejectListOne">
+      <el-row  v-for="(item,index) in FriendRejeUserinfoList" :key="index">
+        <div  class="listFriends">
+          <div  class="listAvatar">
+            <el-avatar :size="20" :src="item.photo" fit="scale-down"></el-avatar>
+          </div>
+          <span class="listName">{{  item.username  }}</span>
+          <!--<span> <el-button plain class="acceptFri">重发</el-button> </span>-->
+        </div>
+      </el-row>
+    </el-tree>
+
+    <el-tree
+      class="tree"
+      :data="FriendsRejectListTwo">
+      <el-row  v-for="(item,index) in UserRejeFriendinfoList" :key="index">
+        <div  class="listFriends">
+          <div  class="listAvatar">
+            <el-avatar :size="20" :src="item.photo" fit="scale-down"></el-avatar>
+          </div>
+          <span class="listName">{{  item.username  }}</span>
+        </div>
+      </el-row>
+    </el-tree>
   </div>
 </template>
 
@@ -76,9 +84,27 @@
                             label: '目前没有发送的好友请求'
                         }]
                     }],
+                FriendsRejectListOne:[{
+                    id: 1,
+                    label: '被拒绝的好友请求',
+                    children: [{
+                        id: 2,
+                        label: '目前没有被拒绝的好友请求'
+                    }]
+                }],
+                FriendsRejectListTwo:[{
+                    id: 1,
+                    label: '已拒绝的好友请求',
+                    children: [{
+                        id: 2,
+                        label: '目前没有已拒绝的好友请求'
+                    }]
+                }],
              /*   list: [],*/
                 FriendNonUserinfoList: [],
                 UserNonFriendinfoList:[],
+                FriendRejeUserinfoList:[],
+                UserRejeFriendinfoList:[],
                 dialogVisibleCheck: false,
                 friendname: '',
                 nickname: "",
@@ -96,11 +122,11 @@
         created(){
             this.$emit('show')
             this.getFriendlistAgree()
+            this.getFriendlistReject()
         },
         methods: {
             getFriendlistAgree(){
-                /*this.msg = this.agreUserinfoList*/
-                var type = null
+                var type = '0'
                 var username = this.user
                     axios.post('/friend/getFrilist',
                         qs.stringify({
@@ -112,16 +138,28 @@
                         console.log(response.data.UserNonFriendinfoList)  //user给对方发好友请求，对方还没回复*/
                         this.FriendNonUserinfoList = response.data.FriendNonUserinfoList
                         this.UserNonFriendinfoList = response.data.UserNonFriendinfoList
-                       /* this.agreUserinfoList = response.data.agreUserinfoList
-                        console.log(this.agreUserinfoList)  */
-                       /* for(var i=0;i<this.agreUserinfoList.length;i++){
-                            if(this.agreUserinfoList[i].status === 0)
-
-                        }*/
                     }).catch(error => {
                         console.log(error)
                     })
             }, //获取待同意的好友列表
+            getFriendlistReject(){
+                var type = '2'
+                var username = this.user
+                axios.post('/friend/getFrilist',
+                    qs.stringify({
+                        username,
+                        type
+                    })
+                ).then(response => {
+                    console.log(response)
+                     console.log(response.data.FriendRejeUserinfoList)  //user的请求被对方拒绝了
+                     console.log(response.data.UserRejeFriendinfoList)  //user拒绝了对方请求
+                    this.FriendRejeUserinfoList = response.data.FriendRejeUserinfoList
+                    this.UserRejeFriendinfoList = response.data.UserRejeFriendinfoList
+                }).catch(error => {
+                    console.log(error)
+                })
+            }, //获取待拒绝的好友列表
             agreeFriend(index) {
                 /*this.dialogVisibleNotice = false*/
                 var username = this.user
@@ -148,7 +186,7 @@
                 /*this.dialogVisibleNotice = false*/
                 var username = this.user
                 var friendname = this.FriendNonUserinfoList[index].username
-                axios.post('/friend/agreeFriend',
+                axios.post('/friend/rejectFriend',
                     qs.stringify({
                         username,
                         friendname
@@ -163,12 +201,7 @@
                     console.log(error)
                     this.$message.error('请求失败!')
                 })
-            },  //拒绝好友
-
-
-
-
-
+            } //拒绝好友
            /* selectFriendInfo(index){
                 this.dialogVisibleCheck = true
                 var username = this.user

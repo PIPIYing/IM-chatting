@@ -10,7 +10,7 @@
 }
 
 #container{ /*垂直居中*/
-  font-size: 16px;
+  font-size: 14px;
   background-color:rgba(255,255,255,0.3);
   width: 860px;
   height: 470px;
@@ -50,7 +50,7 @@
   background-color: #111;
 }
 .el-menu-item{
-  height: 64px;
+  height: 63px;
   padding: 2px 20px 0 10px;
 }
 .el-icon-chat-dot-round,
@@ -104,7 +104,7 @@
   top: 200px;
 }
 .el-icon-circle-plus-outline,
-.el-icon-bell{  /*36px高*/
+.el-icon-refresh-right{  /*36px高*/
   font-size: 26px;
   color: dimgray;
   float: right;

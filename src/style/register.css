@@ -120,15 +120,23 @@
   width: 297px;
 }
 
-#registerBtn{ /*注册框*/
-/*  background-color: rgba(255,255,255,0.5);*/
+/*#registerBtn{ !*注册框*!
+!*  background-color: rgba(255,255,255,0.5);*!
   height: 38px;
   width: 110px;
-/*  border-radius: 20px;
-  border: none;*/
+!*  border-radius: 20px;
+  border: none;*!
   font-size: 15px;
   position: relative;
-  left: 115px;
+  left: 80px;
+}*/
+#loginBtn{
+  position: relative;
+  left: 30px;
+}
+#registerBtn{
+  position: relative;
+  left: 60px;
 }
 
 a:link,

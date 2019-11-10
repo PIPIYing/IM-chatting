@@ -6,7 +6,7 @@
             class="item"
             effect="dark"
             placement="left-start">
-            <div slot="content" v-text="listFriendsStatus(item.status)"></div>
+            <div slot="content" v-text="listFriendsStatus(item.status,item.logintime)"></div>
             <div  class="listAvatar"  @click="selectFriendInfo(index)">
               <el-avatar :size="30" :src="item.photo" fit="scale-down"></el-avatar>
             </div>
@@ -64,6 +64,7 @@
   import axios from 'axios'
   import qs from 'qs'
 
+
     export default {
         name: "listAll",
         props: ['user'],
@@ -92,7 +93,7 @@
         methods: {
             getFriendlistAll(){
                 /*this.msg = this.agreUserinfoList*/
-                var type = 'all'
+                var type = '1'
                 var username = this.user
                 axios.post('/friend/getFrilist',
                     qs.stringify({
@@ -134,18 +135,20 @@
                     this.des = response.data.userInfo.des
                     this.status = response.data.userInfo.status
                     this.logintime = response.data.userInfo.logintime
+                    this.address =  response.data.userInfo.address
                 }).catch(error => {
                     console.log(error)
                 })
             },  //获取指定好友的信息（包括在线离线隐身）
-            listFriendsStatus(status){
+            listFriendsStatus(status,logintime){
 /*                var status = this.status*/
+               /* console.log(logintime)*/
                 switch(status){
-                    case 0:return '离线';  //离线
-                    case 1:return '在线';  //在线
-                    case 2:return '隐身';  //隐身
+                    case 0:return '离线'+ '    '+ logintime;  //离线
+                    case 1:return '在线'+ '    '+ logintime;  //在线
+                    case 2:return '隐身'+ '    '+ logintime;  //隐身
                 }
-            },  //好友状态
+            },  //好友状态和登陆时间
             deleteFriend() {
               var username = this.user  //从父组件传过来的username
                /*  var friendname = this.friendName*/

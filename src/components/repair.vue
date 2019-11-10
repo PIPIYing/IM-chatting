@@ -20,8 +20,8 @@
 </template>
 
 <script>
-  import Repair from "../api/httpRepair"
   import qs from 'qs'
+  import axios from 'axios'
 
     export default {
         name: "repair",
@@ -76,7 +76,7 @@
                     })
                 }
                 else {
-                   Repair.post('/user/repair',
+                   axios.post('/user/repair',
                        qs.stringify({
                         username: this.username,
                         oldPassword: this.oldPassword,

@@ -74,6 +74,9 @@
           </textarea>
           <br/>
           <span style="color: red"> *为必填字段</span>
+          <router-link to="/login">
+          <el-button type="primary" plain id="loginBtn">返回首页</el-button>
+          </router-link>
           <el-button type="primary" plain id="registerBtn"  @click="postInfo">立即注册</el-button>
         </div>
       </div>
@@ -82,6 +85,9 @@
 </template>
 
 <script>
+  import qs from 'qs'
+  import Cookie from 'js-cookie'
+
   export default {
           name: "register",
           data() {
@@ -104,7 +110,7 @@
           methods: {
               isValid(str) {
                   return /^\w+$/.test(str)
-              },
+              },  //字符串合理性判断
               nicknameChange(){
                   var nickname = this.nickname
                   if(nickname.length < 6 || nickname.length > 18) {
@@ -113,7 +119,7 @@
                           type: 'warning'
                       })
                   }
-              },
+              },  //昵称合理性判断
               usernameChange() {
                   var username = this.username
                   /*                console.log('调用change')*/
@@ -141,12 +147,12 @@
                   /*else if(username.indexOf(" ") !== -1){
                     alert("用户名中不能含有空格");}*/
 /*                  return username*/
-              },
+              },  //用户名合理性判断
               sexChange(){
                   var sex = document.getElementsByName('sex');
                   if (sex[0].checked === true) return sex[0].value;
                       else return sex[1].value
-              },
+              },  //性别
               pwdChange() {
                /*   var pwdValue = document.getElementById("pwd").value;  //取pwd的值*/
                   var password = this.password
@@ -172,7 +178,7 @@
                               type: 'warning'
                           })
                       }
-              },
+              },  //密码合理性判断
               rePwdChange() {
                   /*var rePwd = this.rePwd*/
                  /* var rePwdValue = document.getElementById("rePwd");
@@ -184,7 +190,7 @@
                           message: '两次输入的密码不一致，请重新输入',
                           type: 'error'
                       })
-              },
+              },  //两次密码输入是否一致
               telChange(){
                   var phone = this.phone
                   if(!/^1[3|4|5|7|8|9][0-9]\d{8}$/.test(phone))
@@ -192,7 +198,7 @@
                           message: '输入的手机号不是完整的11位手机号或者正确的手机号',
                           type: 'error'
                       })
-              },
+              },  //电话号码合理性判断
               ageChange(){
                   var age = this.age
                   if(!/^\+?[1-9][0-9]*$/.test(age))
@@ -200,7 +206,7 @@
                           message: '输入的年龄有误',
                           type: 'warning'
                       })
-              },
+              },  //年龄输入的合理性判断
               beforeAvatarUpload(file){
                   //对上传的图片文件进行判断
                   const isJPG = file.type === 'image/jpeg' || 'image/png' || 'image/gif';
@@ -211,14 +217,13 @@
                   if (!isLt2M) {
                       this.$message.error('上传头像图片大小不能超过 2MB!');
                   }
-                  /*//上传前把参数丢给后台
-                  this.photo = file.name*/
-                  //创建表单对象
-                  var form = new FormData();
-                  //后端接受参数
-                  form.append("photoFile",file)
-                  form.append("photo",file.name)
+                  //上传前把参数丢给后台
+                  this.photo = file.name
+                  this.photoFile = file
+                 /* console.log(this.photoFile)*/
 
+               /*   var formData = JSON.parse(this.formData)*/
+                /*  console.log(formData.nickname)*/
               },  //上传前的判断
               handleAvatarSuccess(res,file) {
                 this.showPhoto = URL.createObjectURL(file.raw);
@@ -226,12 +231,12 @@
                   // 这个 URL 的生命周期和创建它的窗口中的 document 绑定。这个新的URL 对象表示指定的 File 对象或 Blob 对象。
               },  //创建前端展示照片的url
               addressChange(){
-                  if(!/^[\u4e00-\u9fa5]$/.test(this.address))
+                  if(!/^[\u4E00-\u9FA5]$/.test(this.address))
                       this.$message({
                           message: '请输入中文字符！',
                           type: 'warning'
                       })
-              }, //bug!!!!!
+              },  //地址是否中文字符判断
               emailChange(){
                   var email = this.email
                   if(!/^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}$/.test(email)){
@@ -240,47 +245,59 @@
                           type: 'error'
                       })
                   }
-              },
+              },  //邮件格式合理性判断
               postInfo() {
-                  /*var userInfo = {
-                      nickname: this.nickname,
-                      username: this.username,
-                      sex: this.sex,
-                      password: this.password,
-                      phone: this.phone,
-                      age: this.age,
-                      photo: this.photo,
-                      photoFile: this.form,
-                      email: this.email,
-                      des: this.des,
-                      address: this.address
-                  } //上传图片只能是用form表单的形式代替data进行上传*/
+                  //创建表单对象
+                  var formData = new FormData();
+                  //后端接受参数
+                  formData.append("photoFile",this.photoFile)
+                  formData.append("photo",this.photo)
+                  formData.append("nickname",this.nickname)
+                  formData.append("username",this.username)
+                  formData.append("sex",this.sex)
+                  formData.append("password",this.password)
+                  formData.append("phone",this.phone)
+                  formData.append("age",this.age)
+                  formData.append("email",this.email)
+                  formData.append("des",this.des)
+                  formData.append("address",this.address)
                   if (this.username === '' || this.password === '' || this.rePassword === '') {
                       this.$message.error('请先填写好必填信息再注册')
                   } else {
-                      this.axios.post('/user/submit', {
-                          nickname: this.nickname,
-                          username: this.username,
-                          sex: this.sex,
-                          password: this.password,
-                          phone: this.phone,
-                          age: this.age,
-                          photo: this.photo,
-                          photoFile: this.form,
-                          email: this.email,
-                          des: this.des,
-                          address: this.address
-                      })
-                          .then(response => {
+                      this.axios.post('/user/submit',formData,{
+                              headers: {
+                                  'Content-Type': 'multipart/form-data'
+                              }
+                          }
+                          /*qs.stringify({
+                              nickname: this.nickname,
+                              username: this.username,
+                              sex: this.sex,
+                              password: this.password,
+                              phone: this.phone,
+                              age: this.age,
+                              photo: this.photo,
+                              photoFile: this.photoFile,
+                              email: this.email,
+                              des: this.des,
+                              address: this.address
+                          })*/  //非表单数据发送至后台
+                          ).then(response => {
                               console.log(response)
                               if(response.data.status === 200){
-                                  this.$message.success('注册成功!')
+                                  this.$message.success('注册成功!即将为您返回登录页！')
+                                  this.$router.push('/login')
+                              }else if(response.data.status === 401){
+                                  this.$message.warning('该用户名已被注册！')
+                              }else if(response.data.status === 402){
+                                  this.$message.error('数据库出错！请重试')
+                              }else {
+                                  this.$message.error('注册失败！请重试')
                               }
-                          })
-                          .catch(error => {
+                          }).catch(error => {
                                   console.log(error)
                                   this.$message.error('注册失败!')
-                              })
+                          })
                   }
               }
           }
